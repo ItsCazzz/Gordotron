@@ -29,21 +29,21 @@ everyone = discord.AllowedMentions(everyone=True)
 
 # declaring constants and global variables
 BRANDON_ID = 159981115413626880
-jackson_id = 147309825296957440
-caz_id = 483750276977917983
-jesse_id = 128283945203662848
-ari_id = 1048693844750901359
+JACKSON_ID = 147309825296957440
+CAZ_ID = 483750276977917983
+JESSE_ID = 128283945203662848
+ARI_ID = 1048693844750901359
 
-general_chat_id = 813512089259474946
+GENERAL_CHAT_ID = 813512089259474946
 
 NUMBER_REGEX = re.compile(r"\d+")
 
 brandon_vc_ids = [1116030251617759263]
 afk_vc_ids = [1116030288322109531]
 
-datetime_format = "%d/%m/%Y %H:%M:%S"
-time_format = "%H:%M:%S"
-time_formater = datetime.strptime("0:0:0", time_format)
+DATETIME_FORMAT = "%d/%m/%Y %H:%M:%S"
+TIME_FORMAT = "%H:%M:%S"
+TIME_FORMATER = datetime.strptime("0:0:0", TIME_FORMAT)
 
 
 def space_check(st: str, delimiter=" "):
@@ -77,7 +77,7 @@ def jackson_average():
         for line in lines:
             split_line = line.split(",")
 
-            if line.startswith(str(jackson_id)):
+            if line.startswith(str(JACKSON_ID)):
                 jackson_time = float(split_line[1])
 
             elif float(split_line[1]) > 0:
@@ -167,7 +167,7 @@ async def on_voice_state_update(member, before, after):
     if member == client.user:
         return
 
-    text_channel = client.get_channel(general_chat_id)
+    text_channel = client.get_channel(GENERAL_CHAT_ID)
 
     if not isinstance(text_channel, discord.TextChannel):
         raise Exception("Dont be an idiot!!! General Chat is no longer a text channel!")
@@ -177,7 +177,7 @@ async def on_voice_state_update(member, before, after):
     if ((not before.channel) or before.channel.id in afk_vc_ids) and (
         after.channel and after.channel.id not in afk_vc_ids
     ):
-        join_time = datetime.now().strftime(datetime_format)
+        join_time = datetime.now().strftime(DATETIME_FORMAT)
 
         with open("time.txt", "r+") as f:
             lines = f.readlines()
@@ -200,8 +200,8 @@ async def on_voice_state_update(member, before, after):
     elif ((not after.channel) or after.channel.id in afk_vc_ids) and (
         before.channel and before.channel.id not in afk_vc_ids
     ):
-        leave_time = datetime.now().strftime(datetime_format)
-        leave_time = datetime.strptime(leave_time, datetime_format)
+        leave_time = datetime.now().strftime(DATETIME_FORMAT)
+        leave_time = datetime.strptime(leave_time, DATETIME_FORMAT)
 
         with open("time.txt", "r+") as f:
             lines = f.readlines()
@@ -214,7 +214,7 @@ async def on_voice_state_update(member, before, after):
                     split_ln = line.split(",")
 
                     if split_ln[2] != " ":
-                        joined_time = datetime.strptime(split_ln[2], datetime_format)
+                        joined_time = datetime.strptime(split_ln[2], DATETIME_FORMAT)
 
                         previous_time = float(split_ln[1])
 
@@ -417,7 +417,7 @@ async def on_message(message):
 
     ############ Jackson Messages ############
 
-    if message.author.id == jackson_id:
+    if message.author.id == JACKSON_ID:
         msg_num = NUMBER_REGEX.search(message.guild.name)
 
         if msg_num is not None:
@@ -516,7 +516,7 @@ async def on_message(message):
 
     ############ Ari Message ############
 
-    if message.author.id == ari_id:
+    if message.author.id == ARI_ID:
         num = random.randint(1, 500)
 
         if num == 1:
