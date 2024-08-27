@@ -67,4 +67,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contact
 
-For any inquiries or support, please contact the project maintainer at [email@example.com](mailto:email@example.com).
+For any inquiries or support, please contact the project maintainer at [theggjokerexe@gmail.com](mailto:theggjokerexe@gmail.com).
