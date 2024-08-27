@@ -14,6 +14,11 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 if BOT_TOKEN is None:
     raise Exception("Bot Token Not Found. ~Ari Stinks~")
 
+JACKSON_SECRET_MESSAGE = os.getenv("JACKSON_SECRET_MESSAGE")
+
+if JACKSON_SECRET_MESSAGE is None:
+    raise Exception("Jackson message not found.")
+
 intents = discord.Intents.all()
 intents.messages = True
 intents.members = True
@@ -446,7 +451,7 @@ async def on_message(message):
                 ):
                     message_weight = 10
                     print("Condition 1")
-                elif message.content.lower() == "please give me another message":
+                elif message.content.lower() == f"please {JACKSON_SECRET_MESSAGE}":
                     jackson_imunity = True
                     message_weight = -1
                     print("Condition 2")
