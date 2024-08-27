@@ -214,6 +214,7 @@ async def on_voice_state_update(member, before, after):
                         previous_time = float(split_ln[1])
 
                         new_time_in_vc = (leave_time - joined_time).total_seconds() / (
+                            # Mogdello Time!!!
                             60 * 60
                         )
 
