@@ -55,6 +55,15 @@ class PathlikeTree(defaultdict[KT, Union[Any, "PathlikeTree"]]):
             return
         super().__setitem__(key, value)
 
+    def get(self, key: KT, default: T = None) -> T:
+        try:
+            v = self[key]
+            if isinstance(v, PathlikeTree):
+                return default
+            return v  # type: ignore
+        except KeyError:
+            return default
+
 
 pt_1 = PathlikeTree()
 pt_1["a"]["b"][1]["d"] = 5
