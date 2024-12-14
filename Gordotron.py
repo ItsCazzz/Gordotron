@@ -1,31 +1,31 @@
+import json
+from typing import TYPE_CHECKING, Any, DefaultDict, Dict, Optional, TypeVar, Union
 import discord
 import os
+from discord.abc import User
 from discord.ext import commands
 from datetime import datetime
 import asyncio
 import random
 import re
+from pathlib import Path
+from collections import defaultdict
+
+from discord.member import Member, VoiceState
+from discord.message import Message
+from discord.threads import Thread
+
 from dotenv import load_dotenv
 
 load_dotenv()
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+ASSET_PATH = Path("./assets")
 
-if BOT_TOKEN is None:
-    raise Exception("Bot Token Not Found. ~Ari Stinks~")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+assert BOT_TOKEN is not None, "Bot Token Not Found. ~Ari Stinks~"
 
 JACKSON_SECRET_MESSAGE = os.getenv("JACKSON_SECRET_MESSAGE")
-
-if JACKSON_SECRET_MESSAGE is None:
-    raise Exception("Jackson message not found.")
-
-intents = discord.Intents.all()
-intents.messages = True
-intents.members = True
-
-client = commands.Bot(command_prefix="Linus-", intents=intents)
-
-everyone = discord.AllowedMentions(everyone=True)
+assert JACKSON_SECRET_MESSAGE is None, "Jackson message not found."
 
 # declaring constants and global variables
 BRANDON_ID = 159981115413626880
@@ -36,14 +36,31 @@ ARI_ID = 1048693844750901359
 
 GENERAL_CHAT_ID = 813512089259474946
 
-NUMBER_REGEX = re.compile(r"\d+")
 
 brandon_vc_ids = [1116030251617759263]
 afk_vc_ids = [1116030288322109531]
 
+NUMBER_REGEX = re.compile(r"\d+")
 DATETIME_FORMAT = "%d/%m/%Y %H:%M:%S"
 TIME_FORMAT = "%H:%M:%S"
 TIME_FORMATER = datetime.strptime("0:0:0", TIME_FORMAT)
+
+
+intents = discord.Intents.all()
+intents.messages = True
+intents.members = True
+
+client = commands.Bot(command_prefix="Linus-", intents=intents)
+
+everyone = discord.AllowedMentions(everyone=True)
+
+
+class Assets:
+    schwab = ASSET_PATH / "schawb.png"
+    jojo = ASSET_PATH / "jojo.png"
+    rigby_speech = ASSET_PATH / "Rigbyspeech.png"
+
+
 
 
 def space_check(st: str, delimiter=" "):
@@ -106,7 +123,7 @@ async def on_ready():
 
 
 @client.event
-async def on_thread_create(thread):
+async def on_thread_create(thread: Thread):
     """
     the bot will edit any thread that is crated to become
     inactive after 1 hour instead of the deafault of 7 days
@@ -118,7 +135,7 @@ async def on_thread_create(thread):
 
 
 @client.event
-async def on_member_join(member):
+async def on_member_join(member: Member):
     if member == client.user:
         return
 
@@ -135,7 +152,7 @@ async def on_member_join(member):
 
 
 @client.event
-async def on_member_remove(member):
+async def on_member_remove(member: Member):
     if member == client.user:
         return
 
@@ -163,7 +180,7 @@ async def on_member_remove(member):
 
 
 @client.event
-async def on_voice_state_update(member, before, after):
+async def on_voice_state_update(member: Member, before: VoiceState, after: VoiceState):
     if member == client.user:
         return
 
@@ -174,9 +191,9 @@ async def on_voice_state_update(member, before, after):
 
     ############ vc time leaderboard ############
 
-    if ((not before.channel) or before.channel.id in afk_vc_ids) and (
-        after.channel and after.channel.id not in afk_vc_ids
-    ):
+    if (
+        (not before.channel) or (before.channel and before.channel.id in afk_vc_ids)
+    ) and (after.channel and after.channel.id not in afk_vc_ids):
         join_time = datetime.now().strftime(DATETIME_FORMAT)
 
         with open("time.txt", "r+") as f:
@@ -220,7 +237,8 @@ async def on_voice_state_update(member, before, after):
 
                         new_time_in_vc = (leave_time - joined_time).total_seconds() / (
                             # Mogdello Time!!!
-                            60 * 60
+                            60
+                            * 60
                         )
 
                         split_ln[1] = f"{previous_time + new_time_in_vc}"
@@ -285,20 +303,26 @@ async def on_voice_state_update(member, before, after):
             ):
                 await before.channel.edit(name="brandon waiting room")
 
-        elif not before.channel and after.channel.id in brandon_vc_ids:
+        elif (
+            not before.channel and after.channel and after.channel.id in brandon_vc_ids
+        ):
             await after.channel.edit(name="BRANDON IS HERE!!!")
             async with text_channel.typing():
                 await text_channel.send(
                     content="@everyone BRANDON IS HERE!!!", allowed_mentions=everyone
                 )
 
-        elif not after.channel and before.channel.id in brandon_vc_ids:
+        elif (
+            not after.channel and before.channel and before.channel.id in brandon_vc_ids
+        ):
             await before.channel.edit(name="brandon waiting room")
 
 
 @client.event
-async def on_message(message):
+async def on_message(message: Message):
     if message.author == client.user:
+        return
+    if message.guild is None:
         return
 
     jackson_imunity = False
@@ -350,7 +374,7 @@ async def on_message(message):
     if "schwab" in message.content.lower():
         async with message.channel.typing():
             await asyncio.sleep(1.3)
-            await message.channel.send(file=discord.File("schwab.png"))
+            await message.channel.send(file=discord.File(Assets.schwab))
 
         chance = 2
 
@@ -359,7 +383,7 @@ async def on_message(message):
     elif "jojo" in message.content.lower():
         async with message.channel.typing():
             await asyncio.sleep(1.3)
-            await message.channel.send(file=discord.File("jojo.png"))
+            await message.channel.send(file=discord.File(Assets.jojo))
 
         chance = 2
 
@@ -386,6 +410,7 @@ async def on_message(message):
         count = 1
         for user in reversed(sorted_dict):
             user_obj = client.get_user(int(user[0]))
+            username = ""
 
             if user_obj is not None:
                 username = user_obj.display_name
@@ -512,7 +537,7 @@ async def on_message(message):
             if rigby_chance == 1:
                 async with message.channel.typing():
                     await asyncio.sleep(1.3)
-                    await message.channel.send(file=discord.File("Rigbyspeech.png"))
+                    await message.channel.send(file=discord.File(Assets.rigby_speech))
 
     ############ Ari Message ############
 
